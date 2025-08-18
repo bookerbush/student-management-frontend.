@@ -1,0 +1,71 @@
+/* File: EmployeeForm.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Corbel', sans-serif;
+  font-size: 12px;
+  background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+  scroll-behavior: smooth;
+}
+
+/* Container with rounded edges, shadow, gradient */
+.employee-form-container {
+  padding: 20px;
+  max-width: 400px;
+  margin: 40px auto;
+  background: linear-gradient(to bottom, #ffffff, #f7f9fb);
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  transform-style: preserve-3d;
+}
+
+/* Scroll + rolling effect */
+.employee-form-container:target {
+  transform: rotateX(10deg);
+  transition: transform 0.7s ease;
+}
+
+.form-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 20px;
+  text-decoration: underline;
+}
+
+.employee-form {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  row-gap: 12px;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.employee-form input,
+.employee-form select {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 4cm;
+}
+
+.employee-form button {
+  grid-column: 2 / 3;
+  padding: 5px 10px;
+  font-weight: bold;
+  background-color: #006747;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 2cm;
+}
+
+.image-preview {
+  grid-column: 2 / 3;
+  max-height: 150px;
+  border: 1px solid #888;
+  margin-top: 10px;
+}

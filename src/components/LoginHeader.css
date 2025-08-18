@@ -1,0 +1,65 @@
+/* Main header bar */
+.header {
+  background-color: #d4f4dd; /* soft green */
+  width: 100%;
+  padding: 20px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Inner flex layout for name + logo + name */
+.header-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+/* School name styling */
+.school-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #000;
+  max-width: 200px;
+}
+
+/* Logo image */
+.logo {
+  width: 100px;
+  height: auto;
+}
+
+/* Contact details below the name */
+.contact-info {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.contact-info .phone {
+  color: #e69500; /* orange-yellow */
+  font-weight: 500;
+}
+
+.contact-info .email {
+  color: #d15f00; /* burnt orange */
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+  }
+
+  .school-name {
+    max-width: none;
+  }
+
+  .logo {
+    width: 80px;
+  }
+}

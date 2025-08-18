@@ -1,0 +1,49 @@
+/* File: DashboardAttendance.css */
+
+.daily-attendance-table {
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-attendance-table h4 {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  text-align: center;
+  color: #333;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 180px; /* 👈 Limits visible height to ~3 rows */
+}
+
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table-wrapper th,
+.table-wrapper td {
+  border-bottom: 1px solid #ccc;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.yellow-bg {
+  background-color: yellow;
+  color: black;
+  font-weight: bold;
+}
+
+.red-bg {
+  background-color: red;
+  color: white;
+  font-weight: bold;
+}

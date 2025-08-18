@@ -1,0 +1,110 @@
+.payment-form-container {
+  margin: 20px auto;
+  max-width: 1080px;
+  padding: 15px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  background: #fdfdfd;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.payment-form-container h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #1b1b1b;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  background-color: #fff;
+}
+
+.payment-table th,
+.payment-table td {
+  border: 1px solid #999;
+  padding: 6px;
+}
+
+.details-column {
+  text-align: left;
+  vertical-align: top;
+  min-width: 200px;
+  max-width: 200px;
+  background-color: #f9f9f9;
+}
+
+/* Group each label and control in a horizontal row */
+.form-group {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  margin-bottom: 5px !important;
+  gap: 6px !important;
+}
+
+/* Style for labels */
+.form-group label {
+  width: 60px !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Strong override for inputs and selects */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group select {
+  width: 100px !important;
+  max-width: 100px !important;
+  padding: 2px 3px !important;
+  font-size: 11px !important;
+  box-sizing: border-box !important;
+}
+
+/* Optional: textareas */
+.form-group textarea {
+  font-size: 11px !important;
+  width: 120px !important;
+  padding: 2px 3px !important;
+  box-sizing: border-box !important;
+}
+
+/* Consistent spacing for sections */
+.form-section {
+  margin-bottom: 10px !important;
+}
+
+.sub-header th {
+  background-color: #e4e4e4;
+  font-size: 13px;
+}
+
+.remarks-total {
+  background-color: #c4f0c4 !important;
+  font-weight: bold;
+  border-bottom: double 2px #000;
+}
+
+.centered-cell {
+  text-align: center;
+  font-size: 13px;
+  color: #555;
+}
+
+.data-row .dotted-right {
+  border-right: 2px dotted #000 !important;
+}
+
+.data-row .dotted-double-left {
+  border-left: 2px dotted #000 !important;
+}
+
+.data-row .dotted-double-center {
+  border-right: 2px dotted #000 !important;
+}

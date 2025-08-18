@@ -1,0 +1,76 @@
+.student-list-container {
+  padding: 20px;
+  background: #f9f9f9;
+}
+
+/* Filters + Export Buttons Row */
+.filter-export-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap; /* makes it responsive */
+  align-items: center;
+}
+
+.filter-export-bar select {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Table styling */
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.student-table th,
+.student-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.student-table th {
+  background-color: #f4f4f4;
+}
+
+.no-data {
+  text-align: center;
+  color: #888;
+}
+
+/* Alternating row colors */
+.even-row {
+  background-color: #ffffff; /* White */
+}
+
+.odd-row {
+  background-color: #f1f8f4; /* Pale green tint */
+}
+
+/* Smooth row hover with fade */
+.student-table tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+.student-table tbody tr:hover {
+  background-color: #d5ebdd !important; /* Slightly deeper green for hover */
+}
+
+/* Export button styles */
+.export-btn {
+  background-color: #191a19;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.export-btn:hover {
+  background-color: #101110;
+}

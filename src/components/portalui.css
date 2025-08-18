@@ -1,0 +1,41 @@
+/* File: portalui.css */
+
+.portal-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  font-family: "Corbel", sans-serif;
+}
+
+.portal-header {
+  background: #006747;
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.portal-content {
+  background: #f9f9f9;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.portal-section {
+  margin-bottom: 20px;
+}
+
+.portal-footer {
+  text-align: center;
+}
+
+.portal-footer button {
+  padding: 8px 20px;
+  background-color: #006747;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

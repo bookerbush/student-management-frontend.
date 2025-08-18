@@ -1,0 +1,80 @@
+.form-container {
+  padding: 30px;
+  font-family: Candara, sans-serif;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.section {
+  width: 32%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 2px 2px 8px #eee;
+  box-sizing: border-box;
+}
+
+.section h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.form-group label {
+  flex: 1;
+  font-size: 13px;
+}
+
+.form-group input,
+.form-group select {
+  flex: 2;
+  padding: 4px 6px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.passport-preview img {
+  margin-top: 10px;
+  max-width: 100px;
+  max-height: 100px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.message {
+  text-align: center;
+  font-size: 14px;
+  color: green;
+  margin-top: 20px;
+}

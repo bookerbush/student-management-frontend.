@@ -1,0 +1,30 @@
+/* File: AttendanceTable.css */
+.attendance-scroll-wrapper {
+  max-height: 130px;
+  overflow-y: auto;
+}
+
+.attendance-table-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.attendance-table-table th,
+.attendance-table-table td {
+  border-bottom: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+}
+
+.status-present {
+  background-color: yellow;
+  color: black;
+  font-weight: bold;
+}
+
+.status-absent {
+  background-color: red;
+  color: white;
+  font-weight: bold;
+}
