@@ -2,13 +2,13 @@
 import { API_BASE_URL } from "./config";
 
 async function request(endpoint, options = {}) {
-  // Ensure endpoint starts with "/" so we don’t accidentally get bad URLs
+  // Ensure endpoint starts with "/"
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const url = `${API_BASE_URL}${cleanEndpoint}`;
 
   const defaultHeaders = {
     "Content-Type": "application/json",
-    // "Authorization": `Bearer ${localStorage.getItem("token")}` // future JWT use
+    // "Authorization": `Bearer ${localStorage.getItem("token")}` // for JWT later
   };
 
   const config = {
@@ -24,23 +24,28 @@ async function request(endpoint, options = {}) {
     if (contentType && contentType.includes("application/json")) {
       data = await response.json();
     } else {
-      data = await response.text(); // fallback for plain text responses
+      data = await response.text();
     }
 
     if (!response.ok) {
-      throw new Error(
-        `Request failed: ${response.status} ${response.statusText} - ${JSON.stringify(data)}`
-      );
+      throw {
+        response: {
+          status: response.status,
+          statusText: response.statusText,
+          data,
+        },
+      };
     }
 
-    return data;
+    // ✅ Wrap in axios-style response object
+    return { data };
   } catch (error) {
-    console.error("API Error:", error.message);
+    console.error("API Error:", error);
     throw error;
   }
 }
 
-// Convenience functions
+// Convenience functions (axios-style: they return { data })
 export function apiGet(endpoint) {
   return request(endpoint, { method: "GET" });
 }
@@ -62,4 +67,5 @@ export function apiPut(endpoint, data) {
 export function apiDelete(endpoint) {
   return request(endpoint, { method: "DELETE" });
 }
+
 export default { apiGet, apiPost, apiPut, apiDelete };
