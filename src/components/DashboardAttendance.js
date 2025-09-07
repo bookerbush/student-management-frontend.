@@ -26,7 +26,8 @@ const DashboardAttendance = ({ selectedDate }) => {
     console.log('📡 Fetching attendance for date:', formattedDate);
 
     try {
-      const res = await axios.get(`${API_BASE_URL}/tracking/dashboard/attendance`, {
+      const res = await axios.get(`${API_BASE_URL}/api/tracking/dashboard/attendance`, {
+
         params: { date: formattedDate }
       });
       console.log('✅ API response:', res.data);
