@@ -21,8 +21,13 @@ const StudentList = () => {
       try {
         const data = await apiGet("/students");
 
+        // Ensure we always have an array
+        const rawStudents = Array.isArray(data)
+          ? data
+          : data?.students || [];
+
         // Normalize values for cross-DB consistency
-        const normalized = data.map((s) => ({
+        const normalized = rawStudents.map((s) => ({
           ...s,
           gender: s.gender?.trim() || "",
           classEnrolled: s.classEnrolled?.trim() || "",
@@ -36,6 +41,8 @@ const StudentList = () => {
         setFilteredStudents(normalized);
       } catch (err) {
         console.error("❌ Error fetching students:", err);
+        setStudents([]);
+        setFilteredStudents([]);
       }
     };
     fetchStudents();
