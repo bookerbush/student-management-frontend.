@@ -9,10 +9,12 @@ async function request(endpoint, options = {}) {
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const url = `${API_BASE_URL}${cleanEndpoint}`;
 
-  const defaultHeaders = {
-    "Content-Type": "application/json",
-    // "Authorization": `Bearer ${localStorage.getItem("token")}` // for JWT later
-  };
+  // Detect if body is FormData
+  const isFormData = options.body instanceof FormData;
+
+  const defaultHeaders = isFormData
+    ? {} // Let browser set Content-Type automatically
+    : { "Content-Type": "application/json" };
 
   const config = {
     ...options,
@@ -56,7 +58,7 @@ export function apiGet(endpoint) {
 export function apiPost(endpoint, data, headers = {}) {
   return request(endpoint, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: data instanceof FormData ? data : JSON.stringify(data),
     headers,
   });
 }
@@ -64,7 +66,7 @@ export function apiPost(endpoint, data, headers = {}) {
 export function apiPut(endpoint, data, headers = {}) {
   return request(endpoint, {
     method: "PUT",
-    body: JSON.stringify(data),
+    body: data instanceof FormData ? data : JSON.stringify(data),
     headers,
   });
 }

@@ -116,7 +116,7 @@ const StudentForm = () => {
 
     try {
       await apiPost("/students/upload", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
+       // headers: { "Content-Type": "multipart/form-data" },
       });
 
       setMessage("✅ Student saved successfully!");
