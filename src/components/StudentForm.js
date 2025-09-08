@@ -1,8 +1,6 @@
 // File: StudentForm.js
 import React, { useState, useEffect } from "react";
-//import api from "../api"; // ✅ centralized API instance
-import { apiGet, apiPost, apiPut, apiDelete } from "../api";
-
+import { apiGet, apiPost } from "../api";
 import "./StudentForm.css";
 
 const StudentForm = () => {
@@ -12,10 +10,10 @@ const StudentForm = () => {
     firstName: "",
     middleName: "",
     lastName: "",
-    gender: "",
+    gender: "Male", // ✅ default
     dateOfBirth: "",
     placeOfBirth: "",
-    nationality: "Kenyan",
+    nationality: "Kenyan", // ✅ default
 
     // Parent/Guardian
     fatherName: "",
@@ -43,13 +41,13 @@ const StudentForm = () => {
 
     // Health
     medicalConditions: "",
-    bloodGroup: "",
+    bloodGroup: "A+", // ✅ default
     emergencyContactName: "",
     emergencyContactPhone: "",
     emergencyContactRelation: "",
 
     // Other
-    religion: "",
+    religion: "Christian", // ✅ default
     disabilityStatus: false,
     disabilityDescription: "",
     passportPhoto: "",
@@ -60,7 +58,7 @@ const StudentForm = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [message, setMessage] = useState("");
 
-  // ✅ Auto-generate Student ID and Admission Number ("0001", "0002", ...)
+  // ✅ Auto-generate Student ID and Admission Number
   useEffect(() => {
     const getNextStudentId = async () => {
       try {
@@ -77,7 +75,6 @@ const StudentForm = () => {
         console.error("Failed to fetch latest ID", error);
       }
     };
-
     getNextStudentId();
   }, []);
 
@@ -101,10 +98,25 @@ const StudentForm = () => {
     window.location.reload();
   };
 
+  // ✅ Validation step
+  const validateForm = () => {
+    const requiredDropdowns = ["gender", "bloodGroup", "religion"];
+    for (let field of requiredDropdowns) {
+      if (!formData[field] || formData[field].trim() === "") {
+        setMessage(`❌ Please select a valid value for ${field}`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Remove the actual File from JSON stringified data
+    if (!validateForm()) {
+      return; // stop submission if validation fails
+    }
+
     const dataToSend = { ...formData };
     delete dataToSend.passportPhoto;
 
@@ -115,9 +127,7 @@ const StudentForm = () => {
     }
 
     try {
-      await apiPost("/students/upload", formDataToSend, {
-       // headers: { "Content-Type": "multipart/form-data" },
-      });
+      await apiPost("/students/upload", formDataToSend);
 
       setMessage("✅ Student saved successfully!");
 
@@ -130,14 +140,13 @@ const StudentForm = () => {
         ...prev,
         studentId: nextNumber,
         admissionNumber: nextNumber,
-        // Clear the rest of the form except ID fields
         firstName: "",
         middleName: "",
         lastName: "",
-        gender: "",
+        gender: "Male", // reset with default
         dateOfBirth: "",
         placeOfBirth: "",
-        nationality: "Kenyan",
+        nationality: "Kenyan", // reset with default
         fatherName: "",
         fatherPhone: "",
         motherName: "",
@@ -156,11 +165,11 @@ const StudentForm = () => {
         dormitory: "",
         houseParent: "",
         medicalConditions: "",
-        bloodGroup: "",
+        bloodGroup: "A+", // reset with default
         emergencyContactName: "",
         emergencyContactPhone: "",
         emergencyContactRelation: "",
-        religion: "",
+        religion: "Christian", // reset with default
         disabilityStatus: false,
         disabilityDescription: "",
         passportPhoto: "",
@@ -179,6 +188,10 @@ const StudentForm = () => {
       <label>{label}</label>
       {type === "select" ? (
         <select name={name} value={formData[name]} onChange={handleChange}>
+          {/* ✅ Add placeholder only for optional fields */}
+          {name === "relationshipToStudent" && (
+            <option value="">-- Select --</option>
+          )}
           {options.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
