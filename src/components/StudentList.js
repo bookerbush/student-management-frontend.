@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import "./StudentList.css";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-//import { apiGet } from "../api";   // ✅ centralized API
-import { apiGet, apiPost, apiPut, apiDelete } from "../api";
+import { apiGet } from "../api"; // ✅ centralized API
 
 const StudentList = () => {
   const [students, setStudents] = useState([]);
@@ -16,13 +15,25 @@ const StudentList = () => {
     classEnrolled: "",
   });
 
-  // ✅ fetch via api.js
+  // ✅ fetch students
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const data = await apiGet("/students");
-        setStudents(data);
-        setFilteredStudents(data);
+
+        // Normalize values for cross-DB consistency
+        const normalized = data.map((s) => ({
+          ...s,
+          gender: s.gender?.trim() || "",
+          classEnrolled: s.classEnrolled?.trim() || "",
+          boardingStatus:
+            s.boardingStatus === true ||
+            s.boardingStatus === "true" ||
+            s.boardingStatus === 1,
+        }));
+
+        setStudents(normalized);
+        setFilteredStudents(normalized);
       } catch (err) {
         console.error("❌ Error fetching students:", err);
       }
@@ -41,11 +52,8 @@ const StudentList = () => {
     }
 
     if (filters.boardingStatus) {
-      result = result.filter(
-        (s) =>
-          String(s.boardingStatus).toLowerCase() ===
-          filters.boardingStatus.toLowerCase()
-      );
+      const filterVal = filters.boardingStatus === "true";
+      result = result.filter((s) => s.boardingStatus === filterVal);
     }
 
     if (filters.classEnrolled) {
@@ -64,16 +72,31 @@ const StudentList = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ Export CSV
   const exportToExcel = () => {
-    const table = document.getElementById("studentTable");
-    let csvContent = "";
-    for (let row of table.rows) {
-      let rowData = [];
-      for (let cell of row.cells) {
-        rowData.push(`"${cell.innerText}"`);
-      }
-      csvContent += rowData.join(",") + "\n";
-    }
+    const headers = [
+      "Admission No",
+      "Name",
+      "Gender",
+      "Class",
+      "Stream",
+      "Boarding Status",
+    ];
+
+    const rows = filteredStudents.map((s) => [
+      s.admissionNumber || "",
+      `${s.firstName || ""} ${s.lastName || ""}`.trim(),
+      s.gender || "",
+      s.classEnrolled || "",
+      s.stream || "",
+      s.boardingStatus ? "Boarding" : "Day",
+    ]);
+
+    let csvContent =
+      headers.join(",") +
+      "\n" +
+      rows.map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -81,10 +104,30 @@ const StudentList = () => {
     link.click();
   };
 
+  // ✅ Export PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.text("Student List Report", 14, 10);
-    autoTable(doc, { html: "#studentTable" });
+    autoTable(doc, {
+      head: [
+        [
+          "Admission No",
+          "Name",
+          "Gender",
+          "Class",
+          "Stream",
+          "Boarding Status",
+        ],
+      ],
+      body: filteredStudents.map((s) => [
+        s.admissionNumber || "",
+        `${s.firstName || ""} ${s.lastName || ""}`.trim(),
+        s.gender || "",
+        s.classEnrolled || "",
+        s.stream || "",
+        s.boardingStatus ? "Boarding" : "Day",
+      ]),
+    });
     doc.save("students.pdf");
   };
 
@@ -92,9 +135,13 @@ const StudentList = () => {
     <div className="student-list-container">
       <h2>Student List Report ({filteredStudents.length})</h2>
 
-      {/* Filters + Export buttons in same row */}
+      {/* Filters + Export buttons */}
       <div className="filter-export-bar">
-        <select name="gender" value={filters.gender} onChange={handleFilterChange}>
+        <select
+          name="gender"
+          value={filters.gender}
+          onChange={handleFilterChange}
+        >
           <option value="">All Genders</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
@@ -116,11 +163,13 @@ const StudentList = () => {
           onChange={handleFilterChange}
         >
           <option value="">All Classes</option>
-          {[...new Set(students.map((s) => s.classEnrolled).filter(Boolean))].map((cls) => (
-            <option key={cls} value={cls}>
-              {cls}
-            </option>
-          ))}
+          {[...new Set(students.map((s) => s.classEnrolled).filter(Boolean))].map(
+            (cls) => (
+              <option key={cls} value={cls}>
+                {cls}
+              </option>
+            )
+          )}
         </select>
 
         <button onClick={exportToExcel} className="export-btn">
@@ -151,7 +200,7 @@ const StudentList = () => {
                 className={index % 2 === 0 ? "even-row" : "odd-row"}
               >
                 <td>{s.admissionNumber}</td>
-                <td>{`${s.firstName || ""} ${s.lastName || ""}`}</td>
+                <td>{`${s.firstName || ""} ${s.lastName || ""}`.trim()}</td>
                 <td>{s.gender}</td>
                 <td>{s.classEnrolled}</td>
                 <td>{s.stream}</td>
