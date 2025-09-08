@@ -1,5 +1,8 @@
 // src/api.js
-import { API_BASE_URL } from "./config";
+
+// ✅ Use env variable in production, fallback to localhost for local dev
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:8080";
 
 async function request(endpoint, options = {}) {
   // Ensure endpoint starts with "/"
@@ -50,22 +53,24 @@ export function apiGet(endpoint) {
   return request(endpoint, { method: "GET" });
 }
 
-export function apiPost(endpoint, data) {
+export function apiPost(endpoint, data, headers = {}) {
   return request(endpoint, {
     method: "POST",
     body: JSON.stringify(data),
+    headers,
   });
 }
 
-export function apiPut(endpoint, data) {
+export function apiPut(endpoint, data, headers = {}) {
   return request(endpoint, {
     method: "PUT",
     body: JSON.stringify(data),
+    headers,
   });
 }
 
-export function apiDelete(endpoint) {
-  return request(endpoint, { method: "DELETE" });
+export function apiDelete(endpoint, headers = {}) {
+  return request(endpoint, { method: "DELETE", headers });
 }
 
 export default { apiGet, apiPost, apiPut, apiDelete };
