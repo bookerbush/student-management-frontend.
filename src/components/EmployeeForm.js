@@ -1,7 +1,7 @@
 // File: EmployeeForm.js
 import React, { useState } from "react";
 import "./EmployeeForm.css";
-import { API_BASE_URL } from "../config";   // ✅ correct import
+import { apiPost } from "../api";   // ✅ use wrapper instead of raw fetch
 
 function EmployeeForm() {
   const [formData, setFormData] = useState({
@@ -37,6 +37,7 @@ function EmployeeForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Build FormData for employee
     const empForm = new FormData();
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== null) {
@@ -45,21 +46,10 @@ function EmployeeForm() {
     });
 
     try {
-      // ✅ Step 1: Save employee
-      const empRes = await fetch(`${API_BASE_URL}/employees`, {
-        method: "POST",
-        body: empForm,
-      });
+      // ✅ Step 1: Save employee using apiPost (multipart)
+      const { data: savedEmp } = await apiPost("/api/employees", empForm);
 
-      if (!empRes.ok) {
-        const text = await empRes.text();
-        console.error("Backend returned error:", text);
-        throw new Error("Failed to save employee");
-      }
-
-      const savedEmp = await empRes.json();
-
-      // ✅ Step 2: Save user
+      // ✅ Step 2: Save user (JSON)
       const userPayload = {
         username: formData.nationalid,
         password: formData.nationalid,
@@ -69,11 +59,7 @@ function EmployeeForm() {
         status: "ACTIVE",
       };
 
-      await fetch(`${API_BASE_URL}/users/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userPayload),
-      });
+      await apiPost("/users/create", userPayload);
 
       alert("✔ Employee and User registered!");
       setFormData({
