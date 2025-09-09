@@ -61,22 +61,25 @@ const SchoolFeeForm = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    const filteredRows = rows.filter(row => row.itemDescription.trim() !== '');
+const handleSubmit = async () => {
+  const filteredRows = rows.filter(row => row.itemDescription.trim() !== '');
 
-    try {
-      const res = await apiPost('/fees/save', filteredRows);
-      if (res.status === 200) {
-        setMessage('✅ Fee items saved successfully.');
-        setRows([{ ...initialRow }]);
-      } else {
-        throw new Error('Failed');
-      }
-    } catch (err) {
-      console.error('❌ Failed to save fee items:', err);
-      setMessage('❌ Failed to save fee items.');
+  try {
+    const res = await apiPost('/fees/save', filteredRows);
+
+    if (res && res.data) {
+      setMessage('✅ Fee items saved successfully.');
+      setRows([{ ...initialRow }]);
+    } else {
+      setMessage('⚠️ No data returned, but items may have been saved.');
     }
-  };
+  } catch (err) {
+    console.error('❌ Failed to save fee items:', err);
+    setMessage('❌ Failed to save fee items: ' + (err.response?.data || err.message));
+  }
+};
+
+
 
   return (
     <div className="fee-form-container">
