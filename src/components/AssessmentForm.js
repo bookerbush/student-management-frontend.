@@ -9,6 +9,11 @@ const AssessmentForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 🔹 Filters
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedStream, setSelectedStream] = useState("");
+  const [selectedTerm, setSelectedTerm] = useState("");
+
   // 🔹 Fetch students from backend
   useEffect(() => {
     const fetchStudents = async () => {
@@ -91,6 +96,9 @@ const AssessmentForm = () => {
         performanceIndicator: s.performanceIndicator,
         rating: parseInt(s.rating || "0", 10),
         comment: s.comment,
+        class: selectedClass,
+        stream: selectedStream,
+        term: selectedTerm,
       }));
 
       console.log("📤 Submitting payload:", payload);
@@ -111,6 +119,54 @@ const AssessmentForm = () => {
       <h2>Student Assessment Entry</h2>
       {loading && <p>⏳ Loading...</p>}
       {error && <p className="error">{error}</p>}
+
+      {/* 🔹 Filter controls */}
+      <div className="filters">
+        <label>
+          Class:
+          <select
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+          >
+            <option value="">-- Select Class --</option>
+            <option value="PP1">PP1</option>
+            <option value="PP2">PP2</option>
+            <option value="Grade1">Grade 1</option>
+            <option value="Grade2">Grade 2</option>
+            <option value="Grade3">Grade 3</option>
+            <option value="Grade4">Grade 4</option>
+            <option value="Grade5">Grade 5</option>
+            <option value="Grade6">Grade 6</option>
+          </select>
+        </label>
+
+        <label>
+          Stream:
+          <select
+            value={selectedStream}
+            onChange={(e) => setSelectedStream(e.target.value)}
+          >
+            <option value="">-- Select Stream --</option>
+            <option value="North">North</option>
+            <option value="South">South</option>
+            <option value="East">East</option>
+            <option value="West">West</option>
+          </select>
+        </label>
+
+        <label>
+          Term:
+          <select
+            value={selectedTerm}
+            onChange={(e) => setSelectedTerm(e.target.value)}
+          >
+            <option value="">-- Select Term --</option>
+            <option value="Term1">Term 1</option>
+            <option value="Term2">Term 2</option>
+            <option value="Term3">Term 3</option>
+          </select>
+        </label>
+      </div>
 
       <form onSubmit={handleSubmit}>
         <table className="assessment-table">
@@ -173,7 +229,11 @@ const AssessmentForm = () => {
                     type="text"
                     value={row.performanceIndicator}
                     onChange={(e) =>
-                      handleChange(index, "performanceIndicator", e.target.value)
+                      handleChange(
+                        index,
+                        "performanceIndicator",
+                        e.target.value
+                      )
                     }
                   />
                 </td>
