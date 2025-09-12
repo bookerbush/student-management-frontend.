@@ -18,6 +18,7 @@ const AssessmentForm = () => {
         console.log("📌 /students API response:", res.data); // 🔎 Debug log
 
         if (!Array.isArray(res.data)) {
+          console.error("❌ /students did not return an array:", res.data);
           setError("❌ /students did not return an array");
           setLoading(false);
           return;
@@ -27,7 +28,7 @@ const AssessmentForm = () => {
           studentId: s.id,
           studentName: s.name,
           subject: "",
-          assess: "", // ✅ fixed
+          assess: "",
           strand: "",
           subStrand: "",
           performanceIndicator: "",
@@ -64,7 +65,7 @@ const AssessmentForm = () => {
         studentId: "",
         studentName: "",
         subject: "",
-        assess: "", // ✅ fixed
+        assess: "",
         strand: "",
         subStrand: "",
         performanceIndicator: "",
@@ -79,11 +80,11 @@ const AssessmentForm = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await axios.post("/assessments/save", formData.map((s) => ({
+      await axios.post("/api/assessments", formData.map((s) => ({
         studentId: s.studentId,
         studentName: s.studentName,
         subject: s.subject,
-        assess: s.assess, // ✅ fixed
+        assess: s.assess,
         strand: s.strand,
         subStrand: s.subStrand,
         performanceIndicator: s.performanceIndicator,
@@ -101,13 +102,13 @@ const AssessmentForm = () => {
   };
 
   return (
-    <div className="assessment-form">
+    <div className="assessment-container">
       <h2>Assessment Form</h2>
       {loading && <p>⏳ Loading...</p>}
       {error && <p className="error">{error}</p>}
 
       <form onSubmit={handleSubmit}>
-        <table>
+        <table className="assessment-table">
           <thead>
             <tr>
               <th>Student ID</th>
@@ -196,7 +197,9 @@ const AssessmentForm = () => {
         <button type="button" onClick={addRow}>
           ➕ Add Row
         </button>
-        <button type="submit">💾 Save</button>
+        <button type="submit" className="save-btn">
+          💾 Save
+        </button>
       </form>
     </div>
   );
