@@ -140,7 +140,7 @@ const AssessmentForm = () => {
           studentName: s.studentName,
           subject: s.subject,
           assess: s.assessment,
-          assessment: s.assessment,
+          //assessment: s.assessment,
           strand: s.strand,
           subStrand: s.subStrand,
           performanceIndicator: s.performanceIndicator,
