@@ -1,178 +1,203 @@
 // File: AssessmentForm.js
-import React, { useState, useEffect } from 'react';
-import { apiGet, apiPost } from "../api";   // ✅ use helpers from api.js
-import './AssessmentForm.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./AssessmentForm.css";
 
 const AssessmentForm = () => {
-  const [classes, setClasses] = useState([]);
-  const [streams, setStreams] = useState([]);
   const [students, setStudents] = useState([]);
-  const [formData, setFormData] = useState({
-    selectedClass: '',
-    selectedStream: '',
-    term: 'Term1',
-  });
+  const [formData, setFormData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const subjects = [
-    "English", "Kiswahili", "Mathematics", "Science and Technology",
-    "Social Studies", "Religious Education", "Creative Arts",
-    "Physical and Health Education", "Home Science", "Agriculture"
-  ];
-
-  const assessmentTypes = ["CAT1", "CAT2", "Project Work"];
-  const ratings = [1, 2, 3, 4];
-
+  // 🔹 Fetch students from backend
   useEffect(() => {
-    fetchClasses();
-    setStudents(createEmptyRows(4));
-  }, []);
+    const fetchStudents = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("/students");
+        console.log("📌 /students API response:", res.data); // 🔎 Debug log
 
-  useEffect(() => {
-    if (formData.selectedClass && formData.selectedStream) {
-      fetchStudents();
-    }
-  }, [formData.selectedClass, formData.selectedStream]);
-
-  // ✅ now uses apiGet
-  const fetchClasses = async () => {
-    try {
-      const data = await apiGet('/students');
-      const uniqueClasses = [...new Set(data.map(s => s.classEnrolled || s.class_enrolled).filter(Boolean))];
-      setClasses(uniqueClasses);
-    } catch (error) {
-      console.error('❌ Error loading classes:', error);
-    }
-  };
-
-  const fetchStreams = async (classEnrolled) => {
-    try {
-      const data = await apiGet('/students');
-      const filtered = data.filter(s =>
-        (s.classEnrolled || s.class_enrolled)?.toLowerCase() === classEnrolled.toLowerCase()
-      );
-      const uniqueStreams = [...new Set(filtered.map(s => s.stream || s.Stream).filter(Boolean))];
-      setStreams(uniqueStreams);
-    } catch (error) {
-      console.error('❌ Error loading streams:', error);
-    }
-  };
-
-  const fetchStudents = async () => {
-    try {
-      const data = await apiGet('/students');
-      const filtered = data.filter(s => {
-        const classEnrolled = s.classEnrolled || s.class_enrolled || '';
-        const stream = s.stream || s.Stream || '';
-        const status = s.studentStatus || s.student_status || '';
-        if (!classEnrolled || !stream || !status) return false;
-        return (
-          classEnrolled.toLowerCase() === formData.selectedClass.toLowerCase() &&
-          stream.toLowerCase() === formData.selectedStream.toLowerCase() &&
-          status.toLowerCase() === 'active'
-        );
-      });
-
-      const prepared = filtered.map(s => ({
-        studentId: s.admissionNumber || s.admission_number || '',
-        studentName: `${s.firstName || s.first_name || ''} ${s.lastName || s.last_name || ''}`.trim(),
-        subject: '',
-        assessment: '',
-        strand: '',
-        subStrand: '',
-        performanceIndicator: '',
-        rating: '',
-        comment: ''
-      }));
-
-      setStudents(prepared.length > 0 ? prepared : createEmptyRows(4));
-    } catch (error) {
-      console.error('❌ Error fetching students:', error);
-      setStudents(createEmptyRows(4));
-    }
-  };
-
-  const createEmptyRows = (count) => {
-    return Array.from({ length: count }, () => ({
-      studentId: '',
-      studentName: '',
-      subject: '',
-      assessment: '',
-      strand: '',
-      subStrand: '',
-      performanceIndicator: '',
-      rating: '',
-      comment: ''
-    }));
-  };
-
-  const handleInputChange = (index, field, value) => {
-    const updated = [...students];
-    updated[index][field] = value;
-    setStudents(updated);
-  };
-
-  const getNairobiDate = () => {
-    const formatter = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Africa/Nairobi',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
-
-    const parts = formatter.formatToParts(new Date());
-    const year = parts.find(p => p.type === 'year')?.value;
-    const month = parts.find(p => p.type === 'month')?.value;
-    const day = parts.find(p => p.type === 'day')?.value;
-
-    return `${year}-${month}-${day}`;
-  };
-
-  const handleSubmit = async () => {
-    const teacherId = 'T001';
-    const dateRecorded = getNairobiDate();
-
-    try {
-      for (let s of students) {
-        if (!s.studentId || !s.subject || !s.assessment || !s.performanceIndicator) continue;
-
-        const payload = {
-          studentId: s.studentId,
-          studentName: s.studentName,
-          subject: s.subject,
-          assess: s.assessment,
-          //assessment: s.assessment,
-          strand: s.strand,
-          subStrand: s.subStrand,
-          performanceIndicator: s.performanceIndicator,
-          rating: s.rating,
-          comment: s.comment,
-          term: formData.term,
-          dateRecorded,
-          teacherId
-        };
-
-        // ✅ now uses apiPost
-        const res = await apiPost('/api/assessments', payload);
-        if (res && res.error === 'duplicate') {
-          alert(`❌ Duplicate for ${s.studentId} - ${s.performanceIndicator}`);
+        if (!Array.isArray(res.data)) {
+          setError("❌ /students did not return an array");
+          setLoading(false);
           return;
         }
-      }
 
-      alert('✅ Assessments saved successfully');
-      setStudents(createEmptyRows(4));
-    } catch (error) {
-      console.error('❌ Error saving assessment:', error);
-      alert('❌ Failed to save assessment');
+        const prepared = res.data.map((s) => ({
+          studentId: s.id,
+          studentName: s.name,
+          subject: "",
+          assess: "", // ✅ fixed
+          strand: "",
+          subStrand: "",
+          performanceIndicator: "",
+          rating: "",
+          comment: "",
+        }));
+
+        setStudents(res.data);
+        setFormData(prepared);
+        setError("");
+      } catch (err) {
+        console.error("❌ Error fetching students:", err);
+        setError("Failed to fetch students");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+  // 🔹 Handle input change
+  const handleChange = (index, field, value) => {
+    const updated = [...formData];
+    updated[index][field] = value;
+    setFormData(updated);
+  };
+
+  // 🔹 Add empty row
+  const addRow = () => {
+    setFormData([
+      ...formData,
+      {
+        studentId: "",
+        studentName: "",
+        subject: "",
+        assess: "", // ✅ fixed
+        strand: "",
+        subStrand: "",
+        performanceIndicator: "",
+        rating: "",
+        comment: "",
+      },
+    ]);
+  };
+
+  // 🔹 Submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await axios.post("/assessments/save", formData.map((s) => ({
+        studentId: s.studentId,
+        studentName: s.studentName,
+        subject: s.subject,
+        assess: s.assess, // ✅ fixed
+        strand: s.strand,
+        subStrand: s.subStrand,
+        performanceIndicator: s.performanceIndicator,
+        rating: parseInt(s.rating || "0", 10),
+        comment: s.comment,
+      })));
+
+      alert("✅ Assessments saved successfully!");
+    } catch (err) {
+      console.error("❌ Error saving assessments:", err);
+      alert("Failed to save assessments");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="assessment-container">
-      <h2>Student Assessment Entry</h2>
+    <div className="assessment-form">
+      <h2>Assessment Form</h2>
+      {loading && <p>⏳ Loading...</p>}
+      {error && <p className="error">{error}</p>}
 
-      {/* form UI remains same */}
-      ...
+      <form onSubmit={handleSubmit}>
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Subject</th>
+              <th>Assess</th>
+              <th>Strand</th>
+              <th>Sub Strand</th>
+              <th>Performance Indicator</th>
+              <th>Rating</th>
+              <th>Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {formData.map((row, index) => (
+              <tr key={index}>
+                <td>{row.studentId}</td>
+                <td>{row.studentName}</td>
+                <td>
+                  <input
+                    type="text"
+                    value={row.subject}
+                    onChange={(e) =>
+                      handleChange(index, "subject", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={row.assess}
+                    onChange={(e) =>
+                      handleChange(index, "assess", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={row.strand}
+                    onChange={(e) =>
+                      handleChange(index, "strand", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={row.subStrand}
+                    onChange={(e) =>
+                      handleChange(index, "subStrand", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={row.performanceIndicator}
+                    onChange={(e) =>
+                      handleChange(index, "performanceIndicator", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    value={row.rating}
+                    onChange={(e) =>
+                      handleChange(index, "rating", e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={row.comment}
+                    onChange={(e) =>
+                      handleChange(index, "comment", e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button type="button" onClick={addRow}>
+          ➕ Add Row
+        </button>
+        <button type="submit">💾 Save</button>
+      </form>
     </div>
   );
 };
