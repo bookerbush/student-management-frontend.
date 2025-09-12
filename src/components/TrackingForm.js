@@ -25,12 +25,11 @@ const TrackingForm = () => {
     generatePlaceholderRows();
   }, []);
 
-  // ✅ Load classes from backend
+  // ✅ Load classes
   const fetchClasses = async () => {
     try {
       const res = await apiGet("/students");
       const all = res.data;
-
       const uniqueClasses = [
         ...new Set(
           all.map((s) => s.classEnrolled || s.class_enrolled).filter(Boolean)
@@ -42,7 +41,7 @@ const TrackingForm = () => {
     }
   };
 
-  // ✅ Load streams for selected class
+  // ✅ Load streams
   const fetchStreams = async (classSelected) => {
     try {
       const res = await apiGet("/students");
@@ -50,7 +49,6 @@ const TrackingForm = () => {
         (s) =>
           (s.classEnrolled || s.class_enrolled) === classSelected
       );
-
       const uniqueStreams = [
         ...new Set(
           filtered.map((s) => s.stream || s.Stream).filter(Boolean)
@@ -62,7 +60,7 @@ const TrackingForm = () => {
     }
   };
 
-  // ✅ Generate Monday–Saturday week
+  // ✅ Generate week dates Mon–Sat
   const generateWeekDates = () => {
     const today = new Date();
     const kenyaTime = new Date(
@@ -137,7 +135,6 @@ const TrackingForm = () => {
       const fromDate = weekDates[0].date;
       const toDate = weekDates[5].date;
 
-      // ✅ Build query params manually
       const query = `?class=${encodeURIComponent(
         formData.selectedClass
       )}&stream=${encodeURIComponent(
@@ -242,87 +239,141 @@ const TrackingForm = () => {
 
   return (
     <div className="tracking-container">
-      <h2>📊 Attendance Tracking</h2>
       <div className="form-row">
-        <label>Class:</label>
-        <select
-          value={formData.selectedClass}
-          onChange={(e) => {
-            setFormData({ ...formData, selectedClass: e.target.value });
-            fetchStreams(e.target.value);
-          }}
-        >
-          <option value="">-- Select Class --</option>
-          {classes.map((cls) => (
-            <option key={cls} value={cls}>
-              {cls}
-            </option>
-          ))}
-        </select>
-
-        <label>Stream:</label>
-        <select
-          value={formData.selectedStream}
-          onChange={(e) =>
-            setFormData({ ...formData, selectedStream: e.target.value })
-          }
-        >
-          <option value="">-- Select Stream --</option>
-          {streams.map((st) => (
-            <option key={st} value={st}>
-              {st}
-            </option>
-          ))}
-        </select>
-
-        <button type="button" onClick={fetchStudents}>
-          🔍 Load Students
-        </button>
+        <div className="form-group">
+          <label>Term</label>
+          <select
+            value={formData.term}
+            onChange={(e) =>
+              setFormData({ ...formData, term: e.target.value })
+            }
+          >
+            <option>Term1</option>
+            <option>Term2</option>
+            <option>Term3</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Opening Date</label>
+          <input
+            type="date"
+            value={formData.openingDate}
+            onChange={(e) =>
+              setFormData({ ...formData, openingDate: e.target.value })
+            }
+          />
+        </div>
+        <div className="form-group">
+          <label>Midterm Date</label>
+          <input
+            type="date"
+            value={formData.midtermDate}
+            onChange={(e) =>
+              setFormData({ ...formData, midtermDate: e.target.value })
+            }
+          />
+        </div>
+        <div className="form-group">
+          <label>Closing Date</label>
+          <input
+            type="date"
+            value={formData.closingDate}
+            onChange={(e) =>
+              setFormData({ ...formData, closingDate: e.target.value })
+            }
+          />
+        </div>
+        <div className="form-group">
+          <label>Select Class</label>
+          <select
+            value={formData.selectedClass}
+            onChange={(e) => {
+              const selectedClass = e.target.value;
+              setFormData({ ...formData, selectedClass });
+              fetchStreams(selectedClass);
+            }}
+          >
+            <option>Select Class</option>
+            {classes.map((cls) => (
+              <option key={cls}>{cls}</option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Select Stream</label>
+          <select
+            value={formData.selectedStream}
+            onChange={(e) =>
+              setFormData({ ...formData, selectedStream: e.target.value })
+            }
+          >
+            <option>Select Stream</option>
+            {streams.map((st) => (
+              <option key={st}>{st}</option>
+            ))}
+          </select>
+        </div>
+        <button onClick={fetchStudents}>Search</button>
       </div>
 
-      <table className="tracking-table">
-        <thead>
-          <tr>
-            <th>Adm No</th>
-            <th>Full Name</th>
-            {weekDates.map((d, i) => (
-              <th
-                key={d.date}
-                className={todayIndex === i ? "today-highlight" : ""}
-              >
-                {d.label} <br /> ({d.date})
-              </th>
-            ))}
-            <th>% Present</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((s, idx) => (
-            <tr key={idx}>
-              <td>{s.studentId}</td>
-              <td>{s.fullName}</td>
-              {dayKeyList.map((dayKey, i) => (
-                <td
-                  key={dayKey}
-                  className={todayIndex === i ? "today-highlight" : ""}
-                >
-                  <select
-                    value={s[dayKey]}
-                    onChange={(e) => handleSelectChange(e, idx, dayKey)}
-                  >
-                    <option value="P">P</option>
-                    <option value="A">A</option>
-                  </select>
-                </td>
+      <div className="attendance-table">
+        <table className="green-bordered">
+          <thead>
+            <tr>
+              <th>Adm</th>
+              <th>Name</th>
+              <th>% Present</th>
+              {weekDates.map((day, idx) => (
+                <th key={idx}>
+                  {day.label}
+                  <br />
+                  {day.date}
+                </th>
               ))}
-              <td>{calculatePercentage(s)}%</td>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {students.map((student, index) => (
+              <tr key={index}>
+                <td>{student.studentId}</td>
+                <td>{student.fullName}</td>
+                <td>{calculatePercentage(student)}%</td>
+                {dayKeyList.map((dayKey, i) => {
+                  const dateForThisDay = weekDates[i]?.date;
+                  const todayDate = new Date().toISOString().split("T")[0];
+                  const isToday = dateForThisDay === todayDate;
+                  const isPast = new Date(dateForThisDay) < new Date(todayDate);
+
+                  const shouldDisable =
+                    student.studentId === "" ||
+                    (student.recordExists && !isToday);
+
+                  return (
+                    <td key={i}>
+                      <select
+                        className={`attendance-select ${
+                          student[dayKey] === "P" ? "present" : ""
+                        }`}
+                        value={student[dayKey] || "A"}
+                        onChange={(e) =>
+                          handleSelectChange(e, index, dayKey)
+                        }
+                        disabled={shouldDisable || isPast}
+                      >
+                        <option value="P">P</option>
+                        <option value="A">A</option>
+                      </select>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <button className="submit-btn" onClick={handleSubmit}>
-        💾 Submit Attendance
+        Submit Attendance
       </button>
     </div>
   );
