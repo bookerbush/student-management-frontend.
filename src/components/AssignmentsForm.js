@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import "./AssignmentsForm.css";
-//import api from "../api"; // Import helper for GET requests
-import { apiGet, apiPost, apiPut, apiDelete } from "../api";
-
+import { apiGet } from "../api";
 import { API_BASE_URL } from "../config"; // For direct file upload (POST with FormData)
 
 const AssignmentsForm = () => {
@@ -38,10 +36,13 @@ const AssignmentsForm = () => {
 
   const fetchClasses = async () => {
     try {
-      const data = await apiGet("/students");
+      const res = await apiGet("/students");
+      console.log("✅ Students API Response:", res.data); // debug log
       const uniqueClasses = [
         ...new Set(
-          data.map((s) => s.classEnrolled || s.class_enrolled).filter(Boolean)
+          res.data
+            .map((s) => s.classEnrolled || s.class_enrolled)
+            .filter(Boolean)
         ),
       ];
       setClasses(uniqueClasses);
@@ -52,8 +53,8 @@ const AssignmentsForm = () => {
 
   const fetchStreams = async (selectedClass) => {
     try {
-      const data = await apiGet("/students");
-      const filtered = data.filter(
+      const res = await apiGet("/students");
+      const filtered = res.data.filter(
         (s) =>
           (s.classEnrolled || s.class_enrolled)
             ?.toLowerCase()
@@ -103,7 +104,6 @@ const AssignmentsForm = () => {
     payload.append("worktodo", formData.file);
 
     try {
-      // Direct fetch instead of apiPost, since we need multipart/form-data
       const response = await fetch(`${API_BASE_URL}/api/assignments`, {
         method: "POST",
         body: payload,
