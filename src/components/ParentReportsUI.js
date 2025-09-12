@@ -1,9 +1,7 @@
 // File: ParentReportsUI.js
 import React, { useState, useEffect } from "react";
 import ParentMessagesView from "./ParentMessagesView";
-//import { apiGet } from "../api";  // ✅ use centralized axios instance
 import { apiGet, apiPost, apiPut, apiDelete } from "../api";
-
 import "./ParentReportsUI.css";
 
 export default function ParentReportsUI({ admissionNo }) {
@@ -19,8 +17,8 @@ export default function ParentReportsUI({ admissionNo }) {
   useEffect(() => {
     if (admissionNo) {
       apiGet(`/payments/balance?studentid=${admissionNo}&studyyear=2025`)
-        .then(setBalanceData)
-        .catch(err => console.error("Error fetching balance:", err));
+        .then((res) => setBalanceData(res.data))
+        .catch((err) => console.error("Error fetching balance:", err));
     }
   }, [admissionNo]);
 
@@ -28,8 +26,8 @@ export default function ParentReportsUI({ admissionNo }) {
   useEffect(() => {
     if (admissionNo) {
       apiGet(`/payments/statement?studentid=${admissionNo}&studyyear=2025`)
-        .then(setStatementData)
-        .catch(err => console.error("Error fetching statement:", err));
+        .then((res) => setStatementData(res.data))
+        .catch((err) => console.error("Error fetching statement:", err));
     }
   }, [admissionNo]);
 
@@ -37,24 +35,24 @@ export default function ParentReportsUI({ admissionNo }) {
   useEffect(() => {
     if (admissionNo) {
       apiGet(`/parent/assessments/list?studentid=${admissionNo}`)
-        .then(setAssessmentData)
-        .catch(err => console.error("Error fetching assessments:", err));
+        .then((res) => setAssessmentData(res.data))
+        .catch((err) => console.error("Error fetching assessments:", err));
     }
   }, [admissionNo]);
 
   // ✅ Fee Structure
   useEffect(() => {
     apiGet(`/parentdata/feestructure`)
-      .then(data => setFeeStructureData(Array.isArray(data) ? data : []))
-      .catch(err => console.error("Error fetching fee structure:", err));
+      .then((res) => setFeeStructureData(Array.isArray(res.data) ? res.data : []))
+      .catch((err) => console.error("Error fetching fee structure:", err));
   }, []);
 
   // ✅ Attendance
   useEffect(() => {
     if (admissionNo) {
       apiGet(`/parentdata/attendance/list?studentid=${admissionNo}`)
-        .then(data => setAttendanceData(Array.isArray(data) ? data : []))
-        .catch(err => console.error("Error fetching attendance:", err));
+        .then((res) => setAttendanceData(Array.isArray(res.data) ? res.data : []))
+        .catch((err) => console.error("Error fetching attendance:", err));
     }
   }, [admissionNo]);
 
@@ -65,7 +63,7 @@ export default function ParentReportsUI({ admissionNo }) {
       </div>
 
       <div className="parent-reports-tabs">
-        {["balance", "statement", "results", "structure", "attendance", "messages"].map(tab => (
+        {["balance", "statement", "results", "structure", "attendance", "messages"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -82,6 +80,7 @@ export default function ParentReportsUI({ admissionNo }) {
       </div>
 
       <div className="parent-reports-content">
+        {/* ✅ Balance */}
         {activeTab === "balance" && balanceData && (
           <div className="fee-balance-card">
             <p><strong>Student Name:</strong> {balanceData.studentname}</p>
@@ -91,6 +90,7 @@ export default function ParentReportsUI({ admissionNo }) {
           </div>
         )}
 
+        {/* ✅ Statement */}
         {activeTab === "statement" && (
           <div className="fee-statement-table">
             {statementData.length > 0 ? (
@@ -105,7 +105,7 @@ export default function ParentReportsUI({ admissionNo }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {statementData.map(row => (
+                  {statementData.map((row) => (
                     <tr key={row.paymentid}>
                       <td>{row.paydate || "--"}</td>
                       <td>KES {row.amount?.toFixed(2)}</td>
@@ -116,10 +116,13 @@ export default function ParentReportsUI({ admissionNo }) {
                   ))}
                 </tbody>
               </table>
-            ) : <p>No payment records found for this student.</p>}
+            ) : (
+              <p>No payment records found for this student.</p>
+            )}
           </div>
         )}
 
+        {/* ✅ Results */}
         {activeTab === "results" && (
           <div className="assessment-results-table">
             {assessmentData.length > 0 ? (
@@ -139,7 +142,7 @@ export default function ParentReportsUI({ admissionNo }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {assessmentData.map(row => (
+                  {assessmentData.map((row) => (
                     <tr key={row.id}>
                       <td>{row.subject}</td>
                       <td>{row.assess}</td>
@@ -155,10 +158,13 @@ export default function ParentReportsUI({ admissionNo }) {
                   ))}
                 </tbody>
               </table>
-            ) : <p>No assessment records found for this student.</p>}
+            ) : (
+              <p>No assessment records found for this student.</p>
+            )}
           </div>
         )}
 
+        {/* ✅ Fee Structure */}
         {activeTab === "structure" && (
           <div className="fee-structure-container">
             <div className="fee-structure-filters">
@@ -182,7 +188,7 @@ export default function ParentReportsUI({ admissionNo }) {
                 <tbody>
                   {(() => {
                     const groupedItems = {};
-                    feeStructureData.forEach(item => {
+                    feeStructureData.forEach((item) => {
                       let feeAmount = 0;
                       if (selectedClassGroup === "pp0") feeAmount = item.pp0Fee ?? 0;
                       if (selectedClassGroup === "pp12") feeAmount = item.pp12Fee ?? 0;
@@ -194,9 +200,9 @@ export default function ParentReportsUI({ admissionNo }) {
                     });
 
                     const rows = [];
-                    Object.keys(groupedItems).forEach(remark => {
+                    Object.keys(groupedItems).forEach((remark) => {
                       let subtotal = 0;
-                      groupedItems[remark].forEach(row => {
+                      groupedItems[remark].forEach((row) => {
                         rows.push(
                           <tr key={`${row.id}-${remark}`}>
                             <td>{row.itemDescription}</td>
@@ -224,6 +230,7 @@ export default function ParentReportsUI({ admissionNo }) {
           </div>
         )}
 
+        {/* ✅ Attendance */}
         {activeTab === "attendance" && (
           <div className="attendance-table-wrapper">
             {attendanceData.length > 0 ? (
@@ -257,7 +264,15 @@ export default function ParentReportsUI({ admissionNo }) {
                           return (
                             <td key={day}>
                               {date} -{" "}
-                              <span className={status === "P" ? "status-present" : status === "A" ? "status-absent" : ""}>
+                              <span
+                                className={
+                                  status === "P"
+                                    ? "status-present"
+                                    : status === "A"
+                                    ? "status-absent"
+                                    : ""
+                                }
+                              >
                                 {status}
                               </span>
                             </td>
@@ -291,8 +306,18 @@ function ParentMessages({ admissionNo }) {
   return (
     <div className="parent-messages-container">
       <div className="parent-messages-tabs">
-        <button onClick={() => setSubTab("view")} className={subTab === "view" ? "active" : ""}>View Messages</button>
-        <button onClick={() => setSubTab("send")} className={subTab === "send" ? "active" : ""}>Send Message</button>
+        <button
+          onClick={() => setSubTab("view")}
+          className={subTab === "view" ? "active" : ""}
+        >
+          View Messages
+        </button>
+        <button
+          onClick={() => setSubTab("send")}
+          className={subTab === "send" ? "active" : ""}
+        >
+          Send Message
+        </button>
       </div>
 
       <div className="parent-messages-content">
