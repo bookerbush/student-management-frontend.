@@ -19,14 +19,12 @@ const StudentList = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const data = await apiGet("/students");
+        const response = await apiGet("/students"); // returns { data }
+        const rawStudents = Array.isArray(response.data)
+          ? response.data
+          : response.data?.students || [];
 
-        // Ensure we always have an array
-        const rawStudents = Array.isArray(data)
-          ? data
-          : data?.students || [];
-
-        // Normalize values for cross-DB consistency
+        // Normalize values for MySQL/Postgres consistency
         const normalized = rawStudents.map((s) => ({
           ...s,
           gender: s.gender?.trim() || "",
@@ -34,7 +32,8 @@ const StudentList = () => {
           boardingStatus:
             s.boardingStatus === true ||
             s.boardingStatus === "true" ||
-            s.boardingStatus === 1,
+            s.boardingStatus === 1 ||
+            s.boardingStatus === "1",
         }));
 
         setStudents(normalized);
