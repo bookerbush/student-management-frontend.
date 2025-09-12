@@ -6,6 +6,21 @@
   font-size: 9pt;
 }
 
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.form-row select,
+.form-row input {
+  padding: 5px;
+  min-width: 120px;
+  font-family: 'Corbel', sans-serif;
+  font-size: 9pt;
+}
+
 button {
   padding: 8px 14px;
   background-color: #007e33;
@@ -14,7 +29,6 @@ button {
   cursor: pointer;
   font-family: 'Corbel', sans-serif;
   font-size: 9pt;
-  margin-right: 10px;
 }
 
 .assessment-table {
@@ -37,7 +51,8 @@ button {
   padding: 5px;
 }
 
-.assessment-table input {
+.assessment-table input,
+.assessment-table select {
   width: 100%;
   padding: 4px;
   font-family: 'Corbel', sans-serif;
