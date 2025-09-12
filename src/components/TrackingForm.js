@@ -1,6 +1,6 @@
 // File: TrackingForm.js
 import React, { useEffect, useState } from "react";
-import { apiGet, apiPost, apiPut } from "../api"; // ✅ centralized axios
+import { apiGet, apiPost, apiPut } from "../api"; // correct when component is in src/components
 import "./TrackingForm.css";
 
 const TrackingForm = () => {
@@ -25,11 +25,11 @@ const TrackingForm = () => {
     generatePlaceholderRows();
   }, []);
 
-  // ✅ Load classes from backend
+  // Load classes from backend
   const fetchClasses = async () => {
     try {
       const res = await apiGet("/students");
-      const all = res.data;
+      const all = res.data || [];
       const uniqueClasses = [
         ...new Set(
           all.map((s) => s.classEnrolled || s.class_enrolled).filter(Boolean)
@@ -41,18 +41,16 @@ const TrackingForm = () => {
     }
   };
 
-  // ✅ Load streams for selected class
+  // Load streams for selected class
   const fetchStreams = async (classSelected) => {
     try {
       const res = await apiGet("/students");
-      const filtered = res.data.filter(
-        (s) =>
-          (s.classEnrolled || s.class_enrolled) === classSelected
+      const all = res.data || [];
+      const filtered = all.filter(
+        (s) => (s.classEnrolled || s.class_enrolled) === classSelected
       );
       const uniqueStreams = [
-        ...new Set(
-          filtered.map((s) => s.stream || s.Stream).filter(Boolean)
-        ),
+        ...new Set(filtered.map((s) => s.stream || s.Stream).filter(Boolean)),
       ];
       setStreams(uniqueStreams);
     } catch (error) {
@@ -60,7 +58,7 @@ const TrackingForm = () => {
     }
   };
 
-  // ✅ Generate Monday–Saturday week
+  // Generate Monday–Saturday week
   const generateWeekDates = () => {
     const today = new Date();
     const kenyaTime = new Date(
@@ -111,16 +109,22 @@ const TrackingForm = () => {
     setStudents(placeholders);
   };
 
-  // ✅ Fetch students + attendance only when teacher clicks "Load"
+  // Fetch students + attendance only when teacher clicks "Load"
   const fetchStudents = async () => {
     if (!formData.selectedClass || !formData.selectedStream) {
       alert("⚠️ Please select both Class and Stream.");
       return;
     }
 
+    if (!weekDates || weekDates.length < 6) {
+      alert("⚠️ Week dates not ready yet. Please try again in a moment.");
+      return;
+    }
+
     try {
       const res = await apiGet("/students");
-      const filtered = res.data.filter(
+      const all = res.data || [];
+      const filtered = all.filter(
         (s) =>
           (s.classEnrolled || s.class_enrolled) === formData.selectedClass &&
           (s.stream || s.Stream) === formData.selectedStream
@@ -132,26 +136,22 @@ const TrackingForm = () => {
         return;
       }
 
-      const fromDate = weekDates[0].date;
-      const toDate = weekDates[5].date;
+      // Build query string because apiGet wrapper doesn't accept { params } currently
+      const params = new URLSearchParams({
+        class: formData.selectedClass,
+        stream: formData.selectedStream,
+        from: weekDates[0].date,
+        to: weekDates[5].date,
+      }).toString();
 
-      const attendanceRes = await apiGet(`/api/tracking/filter`, {
-        params: {
-          class: formData.selectedClass,
-          stream: formData.selectedStream,
-          from: fromDate,
-          to: toDate,
-        },
-      });
-
-      const attendance = attendanceRes.data;
+      const attendanceRes = await apiGet(`/api/tracking/filter?${params}`);
+      const attendance = attendanceRes.data || [];
 
       const updated = filtered.map((s) => {
-        const record = attendance.find(
-          (a) => a.studentId === (s.admissionNumber || s.admission_number)
-        );
+        const studentKey = s.admissionNumber || s.admission_number;
+        const record = attendance.find((a) => a.studentId === studentKey);
         return {
-          studentId: s.admissionNumber || s.admission_number,
+          studentId: studentKey,
           fullName: `${s.firstName || s.first_name || ""} ${
             s.lastName || s.last_name || ""
           }`.trim(),
@@ -178,8 +178,13 @@ const TrackingForm = () => {
     setStudents(updated);
   };
 
-  // ✅ Submit attendance
+  // Submit attendance
   const handleSubmit = async () => {
+    if (!weekDates || weekDates.length < 6) {
+      alert("⚠️ Week dates not ready yet.");
+      return;
+    }
+
     try {
       for (let s of students) {
         if (!s.studentId || !s.fullName) continue;
@@ -205,7 +210,7 @@ const TrackingForm = () => {
         };
 
         if (s.recordExists) {
-          await apiPut(`/api/tracking/${s.studentId}`, payload);
+          await apiPut(`/api/tracking/${encodeURIComponent(s.studentId)}`, payload);
         } else {
           await apiPost("/api/tracking", payload);
         }
