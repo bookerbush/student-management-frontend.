@@ -1,6 +1,6 @@
 // File: AssessmentForm.js
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { apiGet, apiPost } from "../api"; // ✅ use our wrapper
 import "./AssessmentForm.css";
 
 const AssessmentForm = () => {
@@ -14,7 +14,7 @@ const AssessmentForm = () => {
     const fetchStudents = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("/students");
+        const res = await apiGet("/students");
         console.log("📌 /students API response:", res.data); // 🔎 Debug log
 
         if (!Array.isArray(res.data)) {
@@ -80,7 +80,8 @@ const AssessmentForm = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      await axios.post("/api/assessments", formData.map((s) => ({
+
+      const payload = formData.map((s) => ({
         studentId: s.studentId,
         studentName: s.studentName,
         subject: s.subject,
@@ -90,7 +91,11 @@ const AssessmentForm = () => {
         performanceIndicator: s.performanceIndicator,
         rating: parseInt(s.rating || "0", 10),
         comment: s.comment,
-      })));
+      }));
+
+      console.log("📤 Submitting payload:", payload);
+
+      await apiPost("/assessments", payload);
 
       alert("✅ Assessments saved successfully!");
     } catch (err) {
@@ -103,7 +108,7 @@ const AssessmentForm = () => {
 
   return (
     <div className="assessment-container">
-      <h2>Assessment Form</h2>
+      <h2>Student Assessment Entry</h2>
       {loading && <p>⏳ Loading...</p>}
       {error && <p className="error">{error}</p>}
 
