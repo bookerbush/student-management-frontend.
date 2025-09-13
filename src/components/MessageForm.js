@@ -1,8 +1,6 @@
 // File: MessageForm.js
 import React, { useState } from "react";
-//import { apiGet, apiPost } from "../api";
-import { apiGet, apiPost, apiPut, apiDelete } from "../api";
-
+import { apiGet, apiPost } from "../api";
 import "./MessageForm.css";
 
 const MessageForm = () => {
@@ -24,7 +22,9 @@ const MessageForm = () => {
     if (!admissionNumber.trim()) return;
 
     try {
-      const student = await apiGet(`/students/by-adm/${admissionNumber}`);
+      const { data: student } = await apiGet(`/students/by-adm/${admissionNumber}`);
+      console.log("✅ Student fetched:", student);
+
       setFormData((prev) => ({
         ...prev,
         name: `${student.firstName || ""} ${student.lastName || ""}`.trim(),
@@ -33,7 +33,7 @@ const MessageForm = () => {
       }));
       setStatus(""); // clear error
     } catch (err) {
-      console.error("Error fetching student:", err);
+      console.error("❌ Error fetching student:", err);
       setStatus("⚠️ No student found");
       setFormData((prev) => ({
         ...prev,
@@ -111,7 +111,8 @@ const MessageForm = () => {
         }
       });
 
-      await apiPost("/messages", data); // ✅ using centralized API
+      const response = await apiPost("/messages", data);
+      console.log("✅ Message response:", response.data);
 
       setMessageCount((prev) => prev + 1);
       setStatus(
@@ -130,7 +131,7 @@ const MessageForm = () => {
       });
       document.getElementById("image").value = null;
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error("❌ Error sending message:", err);
       setStatus("❌ Failed to send message");
     }
   };
